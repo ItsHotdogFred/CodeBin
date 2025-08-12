@@ -15,6 +15,17 @@ definitions:
       token:
         type: string
     type: object
+  handlers.CreateSnippetRequest:
+    properties:
+      code:
+        type: string
+      description:
+        type: string
+      language:
+        type: string
+      name:
+        type: string
+    type: object
   handlers.EmailRequest:
     properties:
       email:
@@ -44,7 +55,6 @@ definitions:
       name:
         type: string
       size:
-        description: Size in bytes
         type: integer
       updatedAt:
         type: string
@@ -52,7 +62,6 @@ definitions:
   models.User:
     properties:
       created_snippets:
-        description: User Stats
         items:
           type: integer
         type: array
@@ -67,7 +76,6 @@ definitions:
       registered_at:
         type: string
       total_storage:
-        description: Size in bytes (Max is 1MB = 1,048,576 bytes)
         type: integer
       updatedAt:
         type: string
@@ -120,7 +128,7 @@ paths:
         name: snippet
         required: true
         schema:
-          $ref: '#/definitions/models.Snippet'
+          $ref: '#/definitions/handlers.CreateSnippetRequest'
       produces:
       - application/json
       responses:

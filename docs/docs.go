@@ -86,7 +86,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.Snippet"
+                            "$ref": "#/definitions/handlers.CreateSnippetRequest"
                         }
                     }
                 ],
@@ -491,6 +491,23 @@ const docTemplate = `{
                 }
             }
         },
+        "handlers.CreateSnippetRequest": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "language": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "handlers.EmailRequest": {
             "type": "object",
             "properties": {
@@ -535,7 +552,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "size": {
-                    "description": "Size in bytes",
                     "type": "integer"
                 },
                 "updatedAt": {
@@ -550,7 +566,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "created_snippets": {
-                    "description": "User Stats",
                     "type": "array",
                     "items": {
                         "type": "integer"
@@ -569,7 +584,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "total_storage": {
-                    "description": "Size in bytes (Max is 1MB = 1,048,576 bytes)",
                     "type": "integer"
                 },
                 "updatedAt": {

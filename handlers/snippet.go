@@ -20,6 +20,13 @@ type AuthAndOwnershipResult struct {
 	Snippet models.Snippet
 }
 
+type CreateSnippetRequest struct {
+    Name        string `json:"name"`
+    Description string `json:"description"`
+    Code        string `json:"code"`
+    Language    string `json:"language"`
+}
+
 func authenticateAndVerifyOwnership(w http.ResponseWriter, r *http.Request, snippetID string) (*AuthAndOwnershipResult, error) {
 	tokenString := r.Header.Get("Authorization")
 	if tokenString == "" {
@@ -113,7 +120,7 @@ func authenticateUser(w http.ResponseWriter, r *http.Request) (string, error) {
 // @Accept json
 // @Produce json
 // @Security BearerAuth
-// @Param snippet body models.Snippet true "Snippet data"
+// @Param snippet body CreateSnippetRequest true "Snippet data"
 // @Success 201 {object} map[string]string "Created snippet URL"
 // @Failure 400 {string} string "Invalid request body"
 // @Failure 401 {string} string "Unauthorized"
