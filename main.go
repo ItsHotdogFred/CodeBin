@@ -1,4 +1,4 @@
-package main
+package handler // Changed from 'package main'
 
 import (
 	"CodeBin/database"
@@ -23,7 +23,6 @@ import (
 // @description Type "Bearer" followed by a space and JWT token.
 
 // Handler is the main entry point for Vercel.
-// It replaces the main() function for serverless deployment.
 func Handler(w http.ResponseWriter, r *http.Request) {
 	// Load environment variables from .env file if present.
 	// On Vercel, you should set these in the Project Settings instead.
