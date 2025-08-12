@@ -22,15 +22,21 @@ import (
 // @name Authorization
 // @description Type "Bearer" followed by a space and JWT token.
 
-func main() {
-	// Load environment variables from .env file if present
+// Handler is the main entry point for Vercel.
+// It replaces the main() function for serverless deployment.
+func Handler(w http.ResponseWriter, r *http.Request) {
+	// Load environment variables from .env file if present.
+	// On Vercel, you should set these in the Project Settings instead.
 	if err := godotenv.Load(); err != nil {
 		fmt.Println("No .env file found or error loading .env", err)
 	}
-	// Initialize database
+	// Initialize database.
 	database.Initialize()
 
+	// Create a new ServeMux to handle routes for each request.
 	mux := http.NewServeMux()
+
+	// All your routes are defined here, same as before.
 	mux.Handle("/request-token", middleware.RateLimit(15)(http.HandlerFunc(handlers.RequestToken)))
 	mux.Handle("/verify-token", middleware.RateLimit(15)(http.HandlerFunc(handlers.VerifyToken)))
 	mux.Handle("/create", middleware.RateLimit(15)(http.HandlerFunc(handlers.CreateSnippet)))
@@ -41,6 +47,7 @@ func main() {
 	mux.Handle("/about", middleware.RateLimit(15)(http.HandlerFunc(handlers.AboutMe)))
 	mux.Handle("/swagger/", httpSwagger.WrapHandler)
 
-	fmt.Println("Server started at :8080")
-	http.ListenAndServe(":8080", mux)
+	// Instead of ListenAndServe, we pass the request to our router.
+	// Vercel handles the actual server listening.
+	mux.ServeHTTP(w, r)
 }
