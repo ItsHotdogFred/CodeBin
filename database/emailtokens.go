@@ -16,7 +16,6 @@ func isValidToken(token string) bool {
 func SaveEmailToken(ctx context.Context, email, token string) error {
 	if !isValidToken(token) {
 		err := errors.New("invalid token format")
-		log.WithField("token", token).WithError(err).Error("Invalid token format in SaveEmailToken")
 		return err
 	}
 	db := DB.WithContext(ctx)
