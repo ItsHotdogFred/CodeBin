@@ -1,0 +1,381 @@
+basePath: /
+definitions:
+  gorm.DeletedAt:
+    properties:
+      time:
+        type: string
+      valid:
+        description: Valid is true if Time is not NULL
+        type: boolean
+    type: object
+  handlers.AuthResponse:
+    properties:
+      message:
+        type: string
+      token:
+        type: string
+    type: object
+  handlers.EmailRequest:
+    properties:
+      email:
+        type: string
+    type: object
+  handlers.TokenVerifyRequest:
+    properties:
+      email:
+        type: string
+      token:
+        type: string
+    type: object
+  models.Snippet:
+    properties:
+      code:
+        type: string
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      description:
+        type: string
+      id:
+        type: integer
+      language:
+        type: string
+      name:
+        type: string
+      size:
+        description: Size in bytes
+        type: integer
+      updatedAt:
+        type: string
+    type: object
+  models.User:
+    properties:
+      created_snippets:
+        description: User Stats
+        items:
+          type: integer
+        type: array
+      createdAt:
+        type: string
+      deletedAt:
+        $ref: '#/definitions/gorm.DeletedAt'
+      email:
+        type: string
+      id:
+        type: integer
+      registered_at:
+        type: string
+      total_storage:
+        description: Size in bytes (Max is 1MB = 1,048,576 bytes)
+        type: integer
+      updatedAt:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: A REST api where you can upload your code snippets for later (or for
+    others)
+  title: CodeBin API
+  version: "1.0"
+paths:
+  /about:
+    get:
+      consumes:
+      - application/json
+      description: Get information about the authenticated user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: User information
+          schema:
+            $ref: '#/definitions/models.User'
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "404":
+          description: User not found
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Get User Information
+      tags:
+      - user
+  /create:
+    post:
+      consumes:
+      - application/json
+      description: Create a new code snippet
+      parameters:
+      - description: Snippet data
+        in: body
+        name: snippet
+        required: true
+        schema:
+          $ref: '#/definitions/models.Snippet'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created snippet URL
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Invalid request body
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "409":
+          description: Snippet with this ID already exists
+          schema:
+            type: string
+        "500":
+          description: Failed to create snippet
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Create Snippet
+      tags:
+      - snippets
+  /delete/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a code snippet by ID
+      parameters:
+      - description: Snippet ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Snippet deleted successfully
+          schema:
+            type: string
+        "400":
+          description: Invalid request
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "403":
+          description: Forbidden - not owner
+          schema:
+            type: string
+        "404":
+          description: Snippet not found
+          schema:
+            type: string
+        "500":
+          description: Failed to delete snippet
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Delete Snippet
+      tags:
+      - snippets
+  /edit/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Edit a code snippet by ID (partial updates allowed)
+      parameters:
+      - description: Snippet ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Partial snippet data to update
+        in: body
+        name: snippet
+        required: true
+        schema:
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Snippet updated successfully
+          schema:
+            $ref: '#/definitions/models.Snippet'
+        "400":
+          description: Invalid request body
+          schema:
+            type: string
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "403":
+          description: Forbidden - not owner
+          schema:
+            type: string
+        "404":
+          description: Snippet not found
+          schema:
+            type: string
+        "500":
+          description: Failed to update snippet
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: Edit Snippet
+      tags:
+      - snippets
+  /request-token:
+    post:
+      consumes:
+      - application/json
+      description: User enters email to receive a verification token
+      parameters:
+      - description: Email address
+        in: body
+        name: email
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.EmailRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Token sent successfully
+          schema:
+            $ref: '#/definitions/handlers.AuthResponse'
+        "400":
+          description: Invalid request
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Request Email Token
+      tags:
+      - auth
+  /sl/{lang}:
+    get:
+      consumes:
+      - application/json
+      description: Search for code snippets by programming language
+      parameters:
+      - description: Programming Language
+        example: python
+        in: path
+        name: lang
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Snippet IDs found
+          schema:
+            items:
+              type: integer
+            type: array
+        "400":
+          description: Invalid language parameter
+          schema:
+            type: string
+        "404":
+          description: No snippets found
+          schema:
+            type: string
+        "500":
+          description: Failed to retrieve snippets
+          schema:
+            type: string
+      summary: Search Snippets by Language
+      tags:
+      - snippets
+  /verify-token:
+    post:
+      consumes:
+      - application/json
+      description: User verifies email with token to sign in/up
+      parameters:
+      - description: Email and token
+        in: body
+        name: verification
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.TokenVerifyRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully authenticated
+          schema:
+            $ref: '#/definitions/handlers.AuthResponse'
+        "400":
+          description: Invalid request
+          schema:
+            type: string
+        "401":
+          description: Invalid token
+          schema:
+            type: string
+        "500":
+          description: Internal server error
+          schema:
+            type: string
+      summary: Verify Email Token
+      tags:
+      - auth
+  /view/{id}:
+    get:
+      consumes:
+      - application/json
+      description: View a code snippet
+      parameters:
+      - description: Snippet ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Snippet found
+          schema:
+            $ref: '#/definitions/models.Snippet'
+        "401":
+          description: Unauthorized
+          schema:
+            type: string
+        "404":
+          description: Snippet not found
+          schema:
+            type: string
+      summary: View Snippet
+      tags:
+      - snippets
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
