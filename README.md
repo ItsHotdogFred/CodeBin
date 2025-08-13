@@ -5,6 +5,8 @@ You can use this api to store your coding snippets and also search other snippet
 The project also supports JWT auth meaning it is possible to have accounts which are linked to your email (When signing up you'll get an email with a code to verify your account)
 For reasons you probably understand. You can only make 20 requests per minute and there is also a 50kb storage limit per user. 
 
+You can test it out at [Swagger](https://app.swaggerhub.com/apis/fred-b04/code-bin_api/1.0)
+
 ## Here are the different endpoints you can try out: 
 
 ### /about
@@ -40,3 +42,5 @@ MAILTRAP_API_TOKEN (Sign up for mailtrap [here](https://mailtrap.io/) and choose
 MAILTRAP_EMAIL (The email you'll be using to send verification codes to people)
 # 4. Run the project
 While in the project root, run ```go run .``` which will start the project. The db will be automatically created 
+# NOTES
+If you want to self host this and have other people reach it including yourself. You must change localhost:8080 to {Enter Server IP}:8080
