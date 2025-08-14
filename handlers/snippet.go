@@ -15,24 +15,30 @@ import (
 	"gorm.io/gorm"
 )
 
+// writeJSONAuthError writes a JSON error response for auth errors (401/403)
+func writeJSONAuthError(w http.ResponseWriter, status int, message string) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	json.NewEncoder(w).Encode(map[string]string{"error": message})
+}
+
 type AuthAndOwnershipResult struct {
 	Email   string
 	Snippet models.Snippet
 }
 
 type CreateSnippetRequest struct {
-    Name        string `json:"name"`
-    Description string `json:"description"`
-    Code        string `json:"code"`
-    Language    string `json:"language"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Code        string `json:"code"`
+	Language    string `json:"language"`
 }
 
 func authenticateAndVerifyOwnership(w http.ResponseWriter, r *http.Request, snippetID string) (*AuthAndOwnershipResult, error) {
 	tokenString := r.Header.Get("Authorization")
 	if tokenString == "" {
-		w.WriteHeader(http.StatusUnauthorized)
-		fmt.Fprint(w, "Missing authorization header")
 		log.Warn("Missing authorization header")
+		writeJSONAuthError(w, http.StatusUnauthorized, "Missing authorization header")
 		return nil, fmt.Errorf("missing authorization header")
 	}
 
@@ -43,16 +49,14 @@ func authenticateAndVerifyOwnership(w http.ResponseWriter, r *http.Request, snip
 	_, err := middleware.VerifyToken(tokenString)
 	if err != nil {
 		log.WithError(err).Warn("Token verification failed")
-		w.WriteHeader(http.StatusUnauthorized)
-		fmt.Fprint(w, "Invalid token")
+		writeJSONAuthError(w, http.StatusUnauthorized, "Invalid token")
 		return nil, fmt.Errorf("invalid token: %v", err)
 	}
 
 	email, err := GetEmailFromBearer(r.Header.Get("Authorization"))
 	if err != nil {
 		log.WithError(err).Warn("Failed to get email from token")
-		w.WriteHeader(http.StatusUnauthorized)
-		fmt.Fprint(w, "Invalid token")
+		writeJSONAuthError(w, http.StatusUnauthorized, "Invalid token")
 		return nil, fmt.Errorf("failed to get email: %v", err)
 	}
 
@@ -86,7 +90,7 @@ func authenticateUser(w http.ResponseWriter, r *http.Request) (string, error) {
 	tokenString := r.Header.Get("Authorization")
 	if tokenString == "" {
 		w.WriteHeader(http.StatusUnauthorized)
-		fmt.Fprint(w, "Missing authorization header")
+		json.NewEncoder(w).Encode(map[string]string{"error": "Missing authorization header"})
 		log.Warn("Missing authorization header")
 		return "", fmt.Errorf("missing authorization header")
 	}
@@ -99,7 +103,7 @@ func authenticateUser(w http.ResponseWriter, r *http.Request) (string, error) {
 	if err != nil {
 		log.WithError(err).Warn("Token verification failed")
 		w.WriteHeader(http.StatusUnauthorized)
-		fmt.Fprint(w, "Invalid token")
+		json.NewEncoder(w).Encode(map[string]string{"error": "Invalid token"})
 		return "", fmt.Errorf("invalid token: %v", err)
 	}
 
@@ -107,7 +111,7 @@ func authenticateUser(w http.ResponseWriter, r *http.Request) (string, error) {
 	if err != nil {
 		log.WithError(err).Warn("Failed to get email from token")
 		w.WriteHeader(http.StatusUnauthorized)
-		fmt.Fprint(w, "Invalid token")
+		json.NewEncoder(w).Encode(map[string]string{"error": "Invalid token"})
 		return "", fmt.Errorf("failed to get email: %v", err)
 	}
 

@@ -34,7 +34,7 @@ func main() {
 	mux.Handle("/request-token", middleware.RateLimit(15)(http.HandlerFunc(handlers.RequestToken)))
 	mux.Handle("/verify-token", middleware.RateLimit(15)(http.HandlerFunc(handlers.VerifyToken)))
 	mux.Handle("/create", middleware.RateLimit(15)(http.HandlerFunc(handlers.CreateSnippet)))
-	mux.Handle("/view/", middleware.RateLimit(15)(http.HandlerFunc(handlers.ViewSnippet)))
+	mux.Handle("/view/", middleware.RateLimit(20)(http.HandlerFunc(handlers.ViewSnippet)))
 	mux.Handle("/delete/", middleware.RateLimit(15)(http.HandlerFunc(handlers.DeleteSnippet)))
 	mux.Handle("/edit/", middleware.RateLimit(15)(http.HandlerFunc(handlers.EditSnippet)))
 	mux.Handle("/sl/", middleware.RateLimit(15)(http.HandlerFunc(handlers.SearchLanguage)))

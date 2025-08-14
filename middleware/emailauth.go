@@ -54,7 +54,7 @@ func VerifyEmailToken(email, token string) error {
 		log.Warn("Invalid token for email")
 		return fmt.Errorf("invalid token for email: %s", email)
 	}
-	if time.Since(authData.CreatedAt) > time.Hour {
+	if time.Since(authData.CreatedAt) > 10*time.Minute {
 		database.DeleteEmailToken(ctx, email)
 		log.Warn("Token expired for email")
 		return fmt.Errorf("token expired for email: %s", email)
@@ -78,8 +78,16 @@ func generateToken() (string, error) {
 		return "", err
 	}
 
-	token := fmt.Sprintf("%06d", int(bytes[0])<<16|int(bytes[1])<<8|int(bytes[2]))
-	return token[:6], nil
+	const charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789"
+	token := make([]byte, 6)
+	for i := range token {
+		b := make([]byte, 1)
+		if _, err := rand.Read(b); err != nil {
+			return "", err
+		}
+		token[i] = charset[int(b[0])%len(charset)]
+	}
+	return string(token), nil
 }
 
 func sendTokenEmail(email, token string) error {
@@ -92,7 +100,7 @@ func sendTokenEmail(email, token string) error {
 	method := "POST"
 
 	subject := "Your CodeBin Access Token"
-	body := fmt.Sprintf("Your access token is: %s\n\nThis token will expire in 1 hour.\n\nIf you didn't request this, someone may be trying to access your account. You can safely ignore this email as they would need access to your email to complete verification.", token)
+	body := fmt.Sprintf("Your access token is: %s\n\nThis token will expire in 10 minutes.\n\nIf you didn't request this, someone may be trying to access your account. You can safely ignore this email as they would need access to your email to complete verification.", token)
 
 	fromEmail := os.Getenv("MAILTRAP_EMAIL")
 	if fromEmail == "" {
