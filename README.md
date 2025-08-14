@@ -5,7 +5,7 @@ You can use this api to store your coding snippets and also search other snippet
 The project also supports JWT auth meaning it is possible to have accounts which are linked to your email (When signing up you'll get an email with a code to verify your account)
 For reasons you probably understand. You can only make 20 requests per minute and there is also a 50kb storage limit per user. 
 
-You can test it out at [Swagger](https://app.swaggerhub.com/apis/fred-b04/code-bin_api/1.0) (Mods at hackclub reading this. Please use that link instead of the one I sent in the submission as this include https or just use api.itsfred.dev instead of the raw ip and port I sent)
+You can test it out at [Swagger](https://app.swaggerhub.com/apis/fred-b04/code-bin_api/1.0) (Mods at hackclub reading this. Please use that link instead of the one I sent in the submission as this include https)
 
 ## Here are the different endpoints you can try out: 
 
