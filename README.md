@@ -12,7 +12,7 @@ You can test it out at [Swagger](https://app.swaggerhub.com/apis/fred-b04/code-b
 ### /about
 Get infomation about your account
 ### /create
-Create snippets
+Create snippets (Input is JSON)
 ### /delete
 Delete snippets you've made
 ### /edit/{id}
